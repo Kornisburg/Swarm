@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(speckit.specify)",
+      "Bash(git fetch:*)",
+      "Bash(ls:*)",
+      "Bash(pwsh:*)"
+    ]
+  }
+}

@@ -1,0 +1,702 @@
+openapi: 3.0.3
+info:
+  title: The Hive - Multi-Agent Engineering System API
+  description: |
+    API for orchestrating AI-powered coding workflows through specialized agents.
+    Supports submission, monitoring, and artifact retrieval for multi-stage software engineering workflows.
+  version: 0.1.0
+  contact:
+    name: The Hive Team
+    email: hive@example.com
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.thehive.production
+    description: Production server
+
+tags:
+  - name: Workflows
+    description: Workflow submission and management
+  - name: Status
+    description: Workflow status queries
+  - name: Artifacts
+    description: Artifact retrieval
+  - name: Health
+    description: Health check endpoints
+
+paths:
+  /workflows:
+    post:
+      tags: [Workflows]
+      summary: Submit a new workflow
+      description: |
+        Submit a feature request to start a new workflow. The system will process
+        the request through specialized agents: specification → design → implementation →
+        review → testing → deployment.
+      operationId: submitWorkflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowSubmission'
+      responses:
+        '201':
+          description: Workflow submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSubmissionResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags: [Workflows]
+      summary: List workflows
+      description: Retrieve a paginated list of workflows with optional filtering
+      operationId: listWorkflows
+      parameters:
+        - name: status
+          in: query
+          description: Filter by workflow status
+          schema:
+            type: string
+            enum: [PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED]
+        - name: project_context_id
+          in: query
+          description: Filter by project context
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          description: Maximum number of results to return
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          description: Number of results to skip
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Workflow list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowListResponse'
+
+  /workflows/{workflow_id}:
+    get:
+      tags: [Workflows]
+      summary: Get workflow details
+      description: Retrieve detailed information about a specific workflow
+      operationId: getWorkflow
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: Workflow UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Workflow details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowDetails'
+        '404':
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Workflows]
+      summary: Cancel a workflow
+      description: Cancel a running or pending workflow
+      operationId: cancelWorkflow
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: Workflow UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Workflow cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowCancellationResponse'
+        '404':
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Cannot cancel workflow in current state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /workflows/{workflow_id}/status:
+    get:
+      tags: [Status]
+      summary: Get workflow status
+      description: Retrieve current status and progress of a workflow
+      operationId: getWorkflowStatus
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: Workflow UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Workflow status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowStatus'
+        '404':
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /workflows/{workflow_id}/artifacts:
+    get:
+      tags: [Artifacts]
+      summary: List workflow artifacts
+      description: Retrieve all artifacts generated by a workflow
+      operationId: listArtifacts
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: Workflow UUID
+          schema:
+            type: string
+            format: uuid
+        - name: artifact_type
+          in: query
+          description: Filter by artifact type
+          schema:
+            type: string
+            enum: [SPECIFICATION, DESIGN, CODE, REVIEW, TEST_SUITE]
+      responses:
+        '200':
+          description: Artifacts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactListResponse'
+        '404':
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /workflows/{workflow_id}/artifacts/{artifact_id}:
+    get:
+      tags: [Artifacts]
+      summary: Get artifact details
+      description: Retrieve detailed content of a specific artifact
+      operationId: getArtifact
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: Workflow UUID
+          schema:
+            type: string
+            format: uuid
+        - name: artifact_id
+          in: path
+          required: true
+          description: Artifact UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Artifact retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactDetails'
+        '404':
+          description: Artifact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /workflows/{workflow_id}/decisions:
+    get:
+      tags: [Observability]
+      summary: Get workflow decisions
+      description: Retrieve all agent decisions made during workflow execution
+      operationId: getDecisions
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: Workflow UUID
+          schema:
+            type: string
+            format: uuid
+        - name: agent_type
+          in: query
+          description: Filter by agent type
+          schema:
+            type: string
+            enum: [SPEC_AGENT, DESIGN_AGENT, IMPLEMENTATION_AGENT, REVIEW_AGENT, TEST_AGENT, DEPLOYMENT_AGENT]
+      responses:
+        '200':
+          description: Decisions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionListResponse'
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Check if the API is healthy
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+components:
+  schemas:
+    WorkflowSubmission:
+      type: object
+      required:
+        - input_request
+      properties:
+        input_request:
+          type: string
+          description: Feature request in natural language
+          example: "Add user authentication with OAuth2 support"
+        project_context_id:
+          type: string
+          format: uuid
+          description: Optional project context to associate with this workflow
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, URGENT]
+          default: MEDIUM
+          description: Workflow priority for queue management
+
+    WorkflowSubmissionResponse:
+      type: object
+      required:
+        - workflow_id
+        - status
+        - created_at
+      properties:
+        workflow_id:
+          type: string
+          format: uuid
+          description: Unique workflow identifier
+        status:
+          type: string
+          enum: [PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED]
+          description: Initial workflow status
+        created_at:
+          type: string
+          format: date-time
+          description: Workflow creation timestamp
+        estimated_completion:
+          type: string
+          format: date-time
+          nullable: true
+          description: Estimated completion time (null if not available)
+
+    WorkflowListResponse:
+      type: object
+      required:
+        - workflows
+        - total
+        - limit
+        - offset
+      properties:
+        workflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSummary'
+        total:
+          type: integer
+          description: Total number of workflows matching the query
+        limit:
+          type: integer
+          description: Maximum number of results returned
+        offset:
+          type: integer
+          description: Number of results skipped
+
+    WorkflowSummary:
+      type: object
+      required:
+        - workflow_id
+        - status
+        - created_at
+        - current_stage
+      properties:
+        workflow_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED]
+        created_at:
+          type: string
+          format: date-time
+        current_stage:
+          type: string
+          nullable: true
+          enum: [spec, design, implement, review, test, deploy]
+        input_request:
+          type: string
+          description: Truncated input request (first 100 chars)
+
+    WorkflowDetails:
+      type: object
+      required:
+        - workflow_id
+        - status
+        - input_request
+        - created_at
+        - updated_at
+        - current_stage
+      properties:
+        workflow_id:
+          type: string
+          format: uuid
+        project_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        status:
+          type: string
+          enum: [PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED]
+        input_request:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        current_stage:
+          type: string
+          nullable: true
+          enum: [spec, design, implement, review, test, deploy]
+        artifacts_summary:
+          type: object
+          nullable: true
+          additionalProperties: true
+        performance_metrics:
+          $ref: '#/components/schemas/PerformanceMetrics'
+        error_message:
+          type: string
+          nullable: true
+
+    WorkflowStatus:
+      type: object
+      required:
+        - workflow_id
+        - status
+        - current_stage
+        - progress
+      properties:
+        workflow_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED]
+        current_stage:
+          type: string
+          nullable: true
+          enum: [spec, design, implement, review, test, deploy]
+        progress:
+          type: object
+          required:
+            - current_stage_index
+            - total_stages
+          properties:
+            current_stage_index:
+              type: integer
+              minimum: 0
+            total_stages:
+              type: integer
+              minimum: 1
+            stage_percent_complete:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 100
+            overall_percent_complete:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 100
+        agent_states:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentState'
+        estimated_remaining_seconds:
+          type: integer
+          nullable: true
+          description: Estimated time until completion
+
+    AgentState:
+      type: object
+      required:
+        - agent_type
+        - status
+      properties:
+        agent_type:
+          type: string
+          enum: [SPEC_AGENT, DESIGN_AGENT, IMPLEMENTATION_AGENT, REVIEW_AGENT, TEST_AGENT, DEPLOYMENT_AGENT]
+        status:
+          type: string
+          enum: [IDLE, ACTIVE, ERROR, COMPLETED]
+        current_task:
+          type: string
+          nullable: true
+        tokens_consumed:
+          type: integer
+          minimum: 0
+
+    WorkflowCancellationResponse:
+      type: object
+      required:
+        - workflow_id
+        - status
+        - message
+      properties:
+        workflow_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [CANCELLED]
+        message:
+          type: string
+          example: "Workflow cancelled successfully"
+
+    ArtifactListResponse:
+      type: object
+      required:
+        - artifacts
+      properties:
+        artifacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArtifactSummary'
+
+    ArtifactSummary:
+      type: object
+      required:
+        - artifact_id
+        - artifact_type
+        - stage
+        - created_at
+      properties:
+        artifact_id:
+          type: string
+          format: uuid
+        artifact_type:
+          type: string
+          enum: [SPECIFICATION, DESIGN, CODE, REVIEW, TEST_SUITE]
+        stage:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        approval_status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+
+    ArtifactDetails:
+      type: object
+      required:
+        - artifact_id
+        - artifact_type
+        - content
+        - created_at
+      properties:
+        artifact_id:
+          type: string
+          format: uuid
+        workflow_id:
+          type: string
+          format: uuid
+        artifact_type:
+          type: string
+          enum: [SPECIFICATION, DESIGN, CODE, REVIEW, TEST_SUITE]
+        stage:
+          type: string
+        content:
+          type: object
+          description: Artifact content (structure varies by type)
+        file_path:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        approval_status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+        version:
+          type: integer
+          minimum: 1
+
+    DecisionListResponse:
+      type: object
+      required:
+        - decisions
+      properties:
+        decisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecisionRecord'
+
+    DecisionRecord:
+      type: object
+      required:
+        - decision_id
+        - agent_type
+        - timestamp
+        - decision_type
+        - input_context
+        - output_decision
+      properties:
+        decision_id:
+          type: string
+          format: uuid
+        agent_type:
+          type: string
+          enum: [SPEC_AGENT, DESIGN_AGENT, IMPLEMENTATION_AGENT, REVIEW_AGENT, TEST_AGENT, DEPLOYMENT_AGENT]
+        timestamp:
+          type: string
+          format: date-time
+        decision_type:
+          type: string
+          example: "architecture_choice"
+        input_context:
+          type: object
+          description: Context input to the decision
+        output_decision:
+          type: object
+          description: Decision output
+        confidence:
+          type: number
+          format: float
+          nullable: true
+          minimum: 0
+          maximum: 1
+        rationale:
+          type: string
+          nullable: true
+
+    PerformanceMetrics:
+      type: object
+      nullable: true
+      properties:
+        duration_seconds:
+          type: number
+          format: float
+          nullable: true
+        total_tokens:
+          type: integer
+          nullable: true
+        cost_usd:
+          type: number
+          format: float
+          nullable: true
+
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+          example: "0.1.0"
+        components:
+          type: object
+          additionalProperties:
+            type: string
+            enum: [healthy, degraded, unhealthy]
+          example:
+            orchestrator: "healthy"
+            database: "healthy"
+            redis: "healthy"
+            vector_store: "healthy"
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true

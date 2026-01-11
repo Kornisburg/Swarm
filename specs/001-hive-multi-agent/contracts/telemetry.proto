@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package telemetry;
+
+// Telemetry service for collecting metrics and logs from workflow execution
+service TelemetryService {
+  // Stream metrics from orchestrator to telemetry collector
+  rpc StreamMetrics(MetricsRequest) returns (stream MetricsResponse);
+
+  // Get current metrics for a specific workflow
+  rpc GetMetrics(MetricsRequest) returns (MetricsResponse);
+
+  // Stream logs from workflow execution
+  rpc StreamLogs(LogRequest) returns (stream LogResponse);
+
+  // Get agent decision details
+  rpc GetAgentDecision(DecisionRequest) returns (DecisionResponse);
+}
+
+// Request metrics streaming for a workflow
+message MetricsRequest {
+  string workflow_id = 1;
+  string agent_id = 2;
+  int32 sample_interval_ms = 3;  // Sampling interval in milliseconds
+}
+
+// Metrics response containing resource usage and cost data
+message MetricsResponse {
+  double cpu_percent = 1;         // CPU usage percentage
+  int64 memory_bytes = 2;         // Memory usage in bytes
+  int64 tokens_used = 3;          // Total tokens consumed
+  double cost_estimate_usd = 4;   // Estimated cost in USD
+  int64 timestamp_ms = 5;         // Unix timestamp in milliseconds
+  map<string, string> labels = 6; // Additional labels for filtering
+}
+
+// Request log streaming for a workflow
+message LogRequest {
+  string workflow_id = 1;
+  string agent_id = 2;
+  string level = 3;               // Log level: DEBUG, INFO, WARN, ERROR
+  int64 since_timestamp_ms = 4;   // Get logs since this timestamp
+}
+
+// Log response containing structured log entries
+message LogResponse {
+  string timestamp = 1;           // ISO 8601 timestamp
+  string level = 2;               // Log level
+  string message = 3;             // Log message
+  string component = 4;           // Component that generated the log
+  map<string, string> metadata = 5; // Additional metadata
+}
+
+// Request agent decision details
+message DecisionRequest {
+  string decision_id = 1;
+  string workflow_id = 2;
+  string agent_type = 3;
+}
+
+// Agent decision response with provenance data
+message DecisionResponse {
+  string decision_id = 1;
+  string agent_type = 2;
+  string decision_type = 3;       // Type of decision
+  string input_context = 4;       // JSON string of input context
+  string output_decision = 5;     // JSON string of output decision
+  float confidence = 6;           // Confidence score (0-1)
+  string rationale = 7;           // Textual explanation
+  int64 timestamp_ms = 8;         // Unix timestamp
+  repeated string dependencies = 9; // Dependent decision IDs
+}

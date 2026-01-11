@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package token_meter;
+
+// Token metering service for tracking LLM usage and enforcing rate limits
+service TokenMeterService {
+  // Record token usage for a workflow
+  rpc RecordTokenUsage(TokenUsageRequest) returns (TokenUsageResponse);
+
+  // Check if a request is within rate limits
+  rpc CheckRateLimit(RateLimitRequest) returns (RateLimitResponse);
+
+  // Get token usage statistics for a workflow
+  rpc GetUsageStats(UsageStatsRequest) returns (UsageStatsResponse);
+
+  // Reset rate limit counters (admin operation)
+  rpc ResetRateLimit(ResetRequest) returns (ResetResponse);
+}
+
+// Request to record token usage
+message TokenUsageRequest {
+  string workflow_id = 1;
+  string agent_id = 2;
+  string provider = 3;            // e.g., "openai", "anthropic"
+  string model = 4;               // e.g., "gpt-4", "claude-3-opus"
+  int32 prompt_tokens = 5;
+  int32 completion_tokens = 6;
+  int64 timestamp_ms = 7;
+}
+
+// Response confirming token usage recording
+message TokenUsageResponse {
+  bool success = 1;
+  string message = 2;
+  int64 total_tokens = 3;         // Cumulative tokens for this workflow
+  double total_cost_usd = 4;      // Cumulative cost for this workflow
+}
+
+// Request to check rate limits
+message RateLimitRequest {
+  string workflow_id = 1;
+  string agent_id = 2;
+  int32 requested_tokens = 3;     // Tokens about to be consumed
+}
+
+// Response indicating if request is within limits
+message RateLimitResponse {
+  bool allowed = 1;               // Whether request is allowed
+  int32 remaining_tokens = 2;     // Tokens remaining in current window
+  int64 reset_time_ms = 3;        // When limit resets (unix timestamp)
+  string message = 4;             // Optional message (e.g., reason for denial)
+}
+
+// Request for usage statistics
+message UsageStatsRequest {
+  string workflow_id = 1;
+  string group_by = 2;            // e.g., "provider", "model", "agent"
+  int64 start_timestamp_ms = 3;   // Optional start time filter
+  int64 end_timestamp_ms = 4;     // Optional end time filter
+}
+
+// Response with usage statistics
+message UsageStatsResponse {
+  repeated UsageBreakdown breakdown = 1;
+  int64 total_tokens = 2;
+  double total_cost_usd = 3;
+  int32 total_requests = 4;
+}
+
+// Usage breakdown by dimension
+message UsageBreakdown {
+  string key = 1;                 // e.g., provider name, model name
+  int64 tokens = 2;
+  double cost_usd = 3;
+  int32 requests = 4;
+}
+
+// Request to reset rate limits
+message ResetRequest {
+  string workflow_id = 1;         // Reset for specific workflow, or empty for global
+  string reset_key = 2;           // Specific limit key to reset
+}
+
+// Response confirming reset
+message ResetResponse {
+  bool success = 1;
+  string message = 2;
+}

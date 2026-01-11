@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package proxy;
+
+// Proxy service for request shaping and routing to external services
+service ProxyService {
+  // Proxy a request to an external LLM provider with shaping applied
+  rpc ProxyLLMRequest(LLMRequest) returns (LLMResponse);
+
+  // Get current proxy configuration
+  rpc GetProxyConfig(ConfigRequest) returns (ConfigResponse);
+
+  // Update proxy configuration (admin operation)
+  rpc UpdateProxyConfig(UpdateConfigRequest) returns (UpdateConfigResponse);
+}
+
+// Request to proxy to LLM provider
+message LLMRequest {
+  string provider = 1;            // Target provider (e.g., "openai", "anthropic")
+  string model = 2;               // Model to use
+  string endpoint = 3;            // API endpoint
+  map<string, string> headers = 4; // HTTP headers (auth will be injected)
+  bytes body = 5;                 // Request body
+  int64 timeout_ms = 6;           // Request timeout
+  map<string, string> metadata = 7; // Additional metadata for tracking
+}
+
+// Response from LLM provider
+message LLMResponse {
+  int32 status_code = 1;          // HTTP status code
+  map<string, string> headers = 2; // Response headers
+  bytes body = 3;                 // Response body
+  int64 duration_ms = 4;          // Request duration
+  bool cached = 5;                // Whether response was from cache
+  string error_message = 6;       // Error message if request failed
+}
+
+// Request for proxy configuration
+message ConfigRequest {
+  string provider = 1;            // Optional: get config for specific provider
+}
+
+// Proxy configuration response
+message ConfigResponse {
+  repeated ProviderConfig providers = 1;
+  GlobalConfig global = 2;
+}
+
+// Configuration for a specific provider
+message ProviderConfig {
+  string provider = 1;
+  bool enabled = 2;
+  int32 max_concurrent_requests = 3;
+  int32 rate_limit_rpm = 4;       // Requests per minute
+  int32 timeout_ms = 5;
+  repeated string allowed_models = 6;
+  map<string, string> default_headers = 7;
+}
+
+// Global proxy configuration
+message GlobalConfig {
+  int32 max_concurrent_requests = 1;
+  bool cache_enabled = 2;
+  int32 cache_ttl_seconds = 3;
+  repeated string blocked_domains = 4;
+}
+
+// Request to update proxy configuration
+message UpdateConfigRequest {
+  oneof config {
+    ProviderConfig provider_config = 1;
+    GlobalConfig global_config = 2;
+  }
+}
+
+// Response confirming configuration update
+message UpdateConfigResponse {
+  bool success = 1;
+  string message = 2;
+}

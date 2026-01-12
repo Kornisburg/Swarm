@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hive-postgres
+    environment:
+      POSTGRES_DB: the_hive
+      POSTGRES_USER: hive_user
+      POSTGRES_PASSWORD: hive_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hive_user -d the_hive"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hive-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: hive-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hive-network
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: hive-chroma
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenAuthServerProvider
+      - CHROMA_SERVER_AUTH_CREDENTIALS=test-token
+    networks:
+      - hive-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  chroma_data:
+
+networks:
+  hive-network:
+    driver: bridge

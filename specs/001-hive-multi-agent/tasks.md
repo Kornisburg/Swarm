@@ -30,14 +30,14 @@ Multi-service distributed system with layered architecture per constitution:
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create directory structure per constitution: /core, /agents, /infra, /memory, /observability, /cli, /tests, /docs
-- [ ] T002 Initialize Python project with pyproject.toml and dependencies (langgraph, langchain, fastapi, uvicorn, pydantic, redis, psycopg2-binary, chromadb, prometheus-client, opentelemetry, pytest)
-- [ ] T003 Initialize Go module for service mesh with go.mod (grpc-go, prometheus/client_golang)
-- [ ] T004 [P] Create docker-compose.yml for local development (PostgreSQL, Redis, Chroma)
-- [ ] T005 [P] Create .env.example with all required environment variables
-- [ ] T006 [P] Create Dockerfile for production container image
-- [ ] T007 [P] Configure Python development tools (black, ruff, mypy, pytest)
-- [ ] T008 [P] Create requirements.txt from pyproject.toml dependencies
+- [X] T001 Create directory structure per constitution: /core, /agents, /infra, /memory, /observability, /cli, /tests, /docs
+- [X] T002 Initialize Python project with pyproject.toml and dependencies (langgraph, langchain, fastapi, uvicorn, pydantic, redis, psycopg2-binary, chromadb, prometheus-client, opentelemetry, pytest)
+- [X] T003 Initialize Go module for service mesh with go.mod (grpc-go, prometheus/client_golang)
+- [X] T004 [P] Create docker-compose.yml for local development (PostgreSQL, Redis, Chroma)
+- [X] T005 [P] Create .env.example with all required environment variables
+- [X] T006 [P] Create Dockerfile for production container image
+- [X] T007 [P] Configure Python development tools (black, ruff, mypy, pytest)
+- [X] T008 [P] Create requirements.txt from pyproject.toml dependencies
 
 ---
 
@@ -49,39 +49,39 @@ Multi-service distributed system with layered architecture per constitution:
 
 ### Memory Layer Setup
 
-- [ ] T009 Create WorkflowSession SQLAlchemy model in memory/postgres/models.py
-- [ ] T010 Create DecisionRecord SQLAlchemy model in memory/postgres/models.py
-- [ ] T011 Create Artifact SQLAlchemy model (base table) in memory/postgres/models.py
-- [ ] T012 Create AgentState SQLAlchemy model in memory/postgres/models.py
-- [ ] T013 Create SandboxSession SQLAlchemy model in memory/postgres/models.py
-- [ ] T014 Create ProjectContext SQLAlchemy model in memory/postgres/models.py
-- [ ] T015 Create database indexes for workflow_sessions table in memory/postgres/models.py
-- [ ] T016 Create database indexes for decision_records table in memory/postgres/models.py
-- [ ] T017 [P] Implement PostgreSQL client wrapper in memory/postgres/client.py
-- [ ] T018 [P] Implement Redis client wrapper in memory/redis/client.py
-- [ ] T019 [P] Implement Chroma vector store wrapper in memory/vectorstore/chroma_store.py
-- [ ] T020 Create database migration scripts in memory/postgres/migrations/
+- [X] T009 Create WorkflowSession SQLAlchemy model in memory/postgres/models.py
+- [X] T010 Create DecisionRecord SQLAlchemy model in memory/postgres/models.py
+- [X] T011 Create Artifact SQLAlchemy model (base table) in memory/postgres/models.py
+- [X] T012 Create AgentState SQLAlchemy model in memory/postgres/models.py
+- [X] T013 Create SandboxSession SQLAlchemy model in memory/postgres/models.py
+- [X] T014 Create ProjectContext SQLAlchemy model in memory/postgres/models.py
+- [X] T015 Create database indexes for workflow_sessions table in memory/postgres/models.py
+- [X] T016 Create database indexes for decision_records table in memory/postgres/models.py
+- [X] T017 [P] Implement PostgreSQL client wrapper in memory/postgres/client.py
+- [X] T018 [P] Implement Redis client wrapper in memory/redis/client.py
+- [X] T019 [P] Implement Chroma vector store wrapper in memory/vectorstore/chroma_store.py
+- [X] T020 Create database migration scripts in memory/postgres/migrations/
 
 ### Core Orchestrator Foundation
 
-- [ ] T021 Create WorkflowState Pydantic model in core/orchestrator/state.py
-- [ ] T022 Implement LangGraph StateGraph wrapper in core/orchestrator/graph.py
-- [ ] T023 Define workflow stage enums in core/workflow_definitions/stages.py
-- [ ] T024 Implement base workflow template in core/workflow_definitions/base_workflow.py
-- [ ] T025 Create deterministic routing logic in core/orchestrator/router.py
+- [X] T021 Create WorkflowState Pydantic model in core/orchestrator/state.py
+- [X] T022 Implement LangGraph StateGraph wrapper in core/orchestrator/graph.py
+- [X] T023 Define workflow stage enums in core/workflow_definitions/stages.py
+- [X] T024 Implement base workflow template in core/workflow_definitions/base_workflow.py
+- [X] T025 Create deterministic routing logic in core/orchestrator/router.py
 
 ### Observability Foundation
 
-- [ ] T026 Implement LangSmith trace exporter in observability/exporters/langsmith.py
-- [ ] T027 [P] Implement Prometheus metrics exporter in observability/exporters/prometheus.py
-- [ ] T028 [P] Implement structured JSON logging with request IDs in observability/exporters/jaeger.py
-- [ ] T029 [P] Create decision tracker for provenance in observability/tracing/decision_tracker.py
+- [X] T026 Implement LangSmith trace exporter in observability/exporters/langsmith.py
+- [X] T027 [P] Implement Prometheus metrics exporter in observability/exporters/prometheus.py
+- [X] T028 [P] Implement structured JSON logging with request IDs in observability/exporters/jaeger.py
+- [X] T029 [P] Create decision tracker for provenance in observability/tracing/decision_tracker.py
 
 ### Configuration & Error Handling
 
-- [ ] T030 Implement environment configuration loader in core/config.py
-- [ ] T031 Create global error handlers and exception classes in core/exceptions.py
-- [ ] T032 [P] Setup health check endpoint structure in infra/fastapi_gateway/routes/health.py
+- [X] T030 Implement environment configuration loader in core/config.py
+- [X] T031 Create global error handlers and exception classes in core/exceptions.py
+- [X] T032 [P] Setup health check endpoint structure in infra/fastapi_gateway/routes/health.py
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -97,41 +97,41 @@ Multi-service distributed system with layered architecture per constitution:
 
 #### Base Agent Interface
 
-- [ ] T033 [P] [US1] Create base Agent abstract class in agents/base.py
-- [ ] T034 [P] [US1] Implement LLM provider factory in core/llm/providers.py
-- [ ] T035 [P] [US1] Implement prompt cache manager in core/llm/cache.py
+- [X] T033 [P] [US1] Create base Agent abstract class in agents/base.py
+- [X] T034 [P] [US1] Implement LLM provider factory in core/llm/providers.py
+- [X] T035 [P] [US1] Implement prompt cache manager in core/llm/cache.py
 
 #### Spec Agent
 
-- [ ] T036 [P] [US1] Create SpecAgent implementation in agents/spec/spec_agent.py
-- [ ] T037 [US1] Implement spec generation logic with LangGraph node in agents/spec/spec_agent.py
-- [ ] T038 [US1] Add SpecAgent to workflow graph in core/orchestrator/graph.py
+- [X] T036 [P] [US1] Create SpecAgent implementation in agents/spec/spec_agent.py
+- [X] T037 [US1] Implement spec generation logic with LangGraph node in agents/spec/spec_agent.py
+- [X] T038 [US1] Add SpecAgent to workflow graph in core/orchestrator/graph.py
 
 #### Design Agent
 
-- [ ] T039 [P] [US1] Create DesignAgent implementation in agents/design/design_agent.py
-- [ ] T040 [US1] Implement architecture design logic with LangGraph node in agents/design/design_agent.py
-- [ ] T041 [US1] Add DesignAgent to workflow graph with conditional edge in core/orchestrator/graph.py
+- [X] T039 [P] [US1] Create DesignAgent implementation in agents/design/design_agent.py
+- [X] T040 [US1] Implement architecture design logic with LangGraph node in agents/design/design_agent.py
+- [X] T041 [US1] Add DesignAgent to workflow graph with conditional edge in core/orchestrator/graph.py
 
 #### Implementation Agent
 
-- [ ] T042 [P] [US1] Create ImplementationAgent in agents/implement/implementation_agent.py
-- [ ] T043 [US1] Implement code generation logic with LangGraph node in agents/implement/implementation_agent.py
-- [ ] T044 [US1] Add ImplementationAgent to workflow graph in core/orchestrator/graph.py
+- [X] T042 [P] [US1] Create ImplementationAgent in agents/implement/implementation_agent.py
+- [X] T043 [US1] Implement code generation logic with LangGraph node in agents/implement/implementation_agent.py
+- [X] T044 [US1] Add ImplementationAgent to workflow graph in core/orchestrator/graph.py
 
 #### Workflow State Management
 
-- [ ] T045 [US1] Implement Redis session store for active workflows in core/state_manager/session_store.py
-- [ ] T046 [US1] Implement PostgreSQL persistent store for completed workflows in core/state_manager/persistent_store.py
-- [ ] T047 [US1] Create workflow checkpointing with LangGraph in core/orchestrator/checkpoint.py
+- [X] T045 [US1] Implement Redis session store for active workflows in core/state_manager/session_store.py
+- [X] T046 [US1] Implement PostgreSQL persistent store for completed workflows in core/state_manager/persistent_store.py
+- [X] T047 [US1] Create workflow checkpointing with LangGraph in core/orchestrator/checkpoint.py
 
 #### FastAPI Gateway - Workflow Endpoints
 
-- [ ] T048 [P] [US1] Create Pydantic schemas for API in infra/fastapi_gateway/models/schemas.py
-- [ ] T049 [US1] Implement workflow submission endpoint in infra/fastapi_gateway/routes/workflows.py
-- [ ] T050 [US1] Implement workflow status endpoint in infra/fastapi_gateway/routes/status.py
-- [ ] T051 [US1] Implement workflow cancellation endpoint in infra/fastapi_gateway/routes/workflows.py
-- [ ] T052 [US1] Create FastAPI application and register routes in infra/fastapi_gateway/app.py
+- [X] T048 [P] [US1] Create Pydantic schemas for API in infra/fastapi_gateway/models/schemas.py
+- [X] T049 [US1] Implement workflow submission endpoint in infra/fastapi_gateway/routes/workflows.py
+- [X] T050 [US1] Implement workflow status endpoint in infra/fastapi_gateway/routes/status.py
+- [X] T051 [US1] Implement workflow cancellation endpoint in infra/fastapi_gateway/routes/workflows.py
+- [X] T052 [US1] Create FastAPI application and register routes in infra/fastapi_gateway/app.py
 
 **Checkpoint**: Core workflow orchestration complete - MVP delivers spec → design → code flow
 
@@ -147,25 +147,25 @@ Multi-service distributed system with layered architecture per constitution:
 
 #### Docker Sandbox Runner
 
-- [ ] T053 [P] [US3] Create Docker sandbox runner wrapper in infra/sandbox/docker_runner.py
-- [ ] T054 [US3] Implement container resource limits (CPU, memory, timeout) in infra/sandbox/docker_runner.py
-- [ ] T055 [US3] Implement network isolation (network_mode="none") in infra/sandbox/docker_runner.py
-- [ ] T056 [US3] Implement read-only filesystem with tmpfs in infra/sandbox/docker_runner.py
-- [ ] T057 [US3] Implement kill switch for immediate termination in infra/sandbox/docker_runner.py
-- [ ] T058 [US3] Add security hardening (no-new-privileges, cap_drop) in infra/sandbox/docker_runner.py
+- [X] T053 [P] [US3] Create Docker sandbox runner wrapper in infra/sandbox/docker_runner.py
+- [X] T054 [US3] Implement container resource limits (CPU, memory, timeout) in infra/sandbox/docker_runner.py
+- [X] T055 [US3] Implement network isolation (network_mode="none") in infra/sandbox/docker_runner.py
+- [X] T056 [US3] Implement read-only filesystem with tmpfs in infra/sandbox/docker_runner.py
+- [X] T057 [US3] Implement kill switch for immediate termination in infra/sandbox/docker_runner.py
+- [X] T058 [US3] Add security hardening (no-new-privileges, cap_drop) in infra/sandbox/docker_runner.py
 
 #### Sandbox Lifecycle Management
 
-- [ ] T059 [US3] Implement sandbox manager in infra/sandbox/manager.py
-- [ ] T060 [US3] Create sandbox session state tracking in infra/sandbox/manager.py
-- [ ] T061 [US3] Implement stdout/stderr capture from sandbox in infra/sandbox/manager.py
-- [ ] T062 [US3] Add sandbox health checks and timeout enforcement in infra/sandbox/manager.py
+- [X] T059 [US3] Implement sandbox manager in infra/sandbox/manager.py
+- [X] T060 [US3] Create sandbox session state tracking in infra/sandbox/manager.py
+- [X] T061 [US3] Implement stdout/stderr capture from sandbox in infra/sandbox/manager.py
+- [X] T062 [US3] Add sandbox health checks and timeout enforcement in infra/sandbox/manager.py
 
 #### Integration with Implementation Agent
 
-- [ ] T063 [US3] Modify ImplementationAgent to use sandbox for code execution in agents/implement/implementation_agent.py
-- [ ] T064 [US3] Store sandbox session records in PostgreSQL via SandboxSession model
-- [ ] T065 [US3] Add sandbox status endpoint in infra/fastapi_gateway/routes/status.py
+- [X] T063 [US3] Modify ImplementationAgent to use sandbox for code execution in agents/implement/implementation_agent.py
+- [X] T064 [US3] Store sandbox session records in PostgreSQL via SandboxSession model
+- [X] T065 [US3] Add sandbox status endpoint in infra/fastapi_gateway/routes/status.py
 
 **Checkpoint**: Secure code execution complete - all generated code runs in isolated sandbox
 

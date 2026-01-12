@@ -1,0 +1,39 @@
+# The Hive - Multi-Agent Engineering System
+# Python Dependencies
+
+# Orchestration
+langgraph>=0.0.40
+langchain>=0.1.0
+langchain-openai>=0.0.5
+langchain-anthropic>=0.1.0
+
+# API Gateway
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Memory Layer
+redis>=5.0.0
+psycopg2-binary>=2.9.9
+sqlalchemy>=2.0.25
+chromadb>=0.4.18
+
+# Observability
+langsmith>=0.0.80
+opentelemetry-api>=1.22.0
+opentelemetry-sdk>=1.22.0
+opentelemetry-instrumentation-fastapi>=0.43b0
+prometheus-client>=0.19.0
+
+# Sandbox
+docker>=7.0.0
+
+# CLI
+click>=8.1.7
+rich>=13.7.0
+
+# Utilities
+python-dotenv>=1.0.0
+httpx>=0.26.0
+tenacity>=8.2.3

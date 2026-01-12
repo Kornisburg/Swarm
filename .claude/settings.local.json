@@ -4,7 +4,11 @@
       "Skill(speckit.specify)",
       "Bash(git fetch:*)",
       "Bash(ls:*)",
-      "Bash(pwsh:*)"
+      "Bash(pwsh:*)",
+      "Bash(go mod init:*)",
+      "Bash(go get:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(find:*)"
     ]
   }
 }

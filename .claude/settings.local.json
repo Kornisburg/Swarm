@@ -8,7 +8,12 @@
       "Bash(go mod init:*)",
       "Bash(go get:*)",
       "Bash(go mod tidy:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(pip install:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

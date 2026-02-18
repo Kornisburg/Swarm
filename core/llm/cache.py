@@ -4,7 +4,7 @@ import hashlib
 import json
 from typing import Any, Optional
 
-from ..memory.redis.client import get_redis_client
+from memory.redis.client import get_redis_client
 
 
 class PromptCache:

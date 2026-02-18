@@ -129,3 +129,19 @@ class PrometheusExporter:
             "active_workflows": self.active_workflows._value.get(),
             "sandbox_containers": self.sandbox_containers._value.get(),
         }
+
+# Global Prometheus exporter instance
+_prometheus_exporter: Optional[PrometheusExporter] = None
+
+
+def get_prometheus_exporter() -> PrometheusExporter:
+    """Get global Prometheus exporter instance.
+
+    Returns:
+        Prometheus exporter instance
+    """
+    global _prometheus_exporter
+    if _prometheus_exporter is None:
+        _prometheus_exporter = PrometheusExporter()
+    return _prometheus_exporter
+

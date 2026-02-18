@@ -1,13 +1,15 @@
 """Decision provenance tracking for The Hive."""
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 from pydantic import BaseModel
 
 
 class DecisionRecord(BaseModel):
     """Record of an agent decision for provenance tracking."""
+
+    model_config = {"arbitrary_types_allowed": True}
 
     decision_id: str
     agent_type: str
@@ -44,8 +46,8 @@ class DecisionTracker:
         Args:
             agent_type: Type of agent making the decision
             decision_type: Type of decision
-            input_context: Input to the decision
-            output_decision: Output of the decision
+            input_context: Input to decision
+            output_decision: Output of decision
             confidence: Confidence score (0-1)
             rationale: Textual explanation
             dependencies: IDs of dependent decisions
@@ -59,7 +61,7 @@ class DecisionTracker:
         record = DecisionRecord(
             decision_id=decision_id,
             agent_type=agent_type,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             decision_type=decision_type,
             input_context=input_context,
             output_decision=output_decision,
@@ -118,5 +120,4 @@ class DecisionTracker:
 
         if workflow_id:
             decisions = [d for d in decisions if d.workflow_id == workflow_id]
-
         return decisions

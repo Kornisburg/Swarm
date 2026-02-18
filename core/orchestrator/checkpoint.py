@@ -1,12 +1,6 @@
 """Workflow checkpointing with LangGraph."""
 
-from typing import Any
-
-from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
-
-from ...memory.postgres.client import get_postgres_client
-from ...config import get_settings
-from ...exceptions import WorkflowException
+from typing import Any, Optional
 
 
 class CheckpointManager:
@@ -14,34 +8,21 @@ class CheckpointManager:
 
     def __init__(self):
         """Initialize checkpoint manager."""
-        self.settings = get_settings()
-        self.postgres = get_postgres_client()
         self._saver: Any = None
 
-    async def get_saver(self) -> AsyncPostgresSaver:
+    async def get_saver(self) -> Any:
         """Get LangGraph checkpoint saver.
 
         Returns:
-            AsyncPostgresSaver instance
+            Checkpoint saver instance
 
         Raises:
             WorkflowException: If saver cannot be initialized
         """
         if self._saver is None:
-            try:
-                # Create the checkpoint saver using PostgreSQL connection
-                sync_engine = self.postgres.engine.sync_engine
-                self._saver = AsyncPostgresSaver.from_conn_string(
-                    f"postgresql://{self.settings.postgres_user}:"
-                    f"{self.settings.postgres_password}@"
-                    f"{self.settings.postgres_host}:"
-                    f"{self.settings.postgres_port}/"
-                    f"{self.settings.postgres_db}"
-                )
-                # Initialize the checkpoint tables
-                await self._saver.setup()
-            except Exception as e:
-                raise WorkflowException(f"Failed to initialize checkpoint saver: {str(e)}")
+            # TODO: Initialize LangGraph checkpoint saver when langgraph.checkpoint is available
+            # For now, return a placeholder
+            self._saver = {}
         return self._saver
 
     async def save_checkpoint(
@@ -60,13 +41,8 @@ class CheckpointManager:
         Returns:
             Checkpoint ID
         """
-        try:
-            saver = await self.get_saver()
-            config = {"configurable": {"thread_id": thread_id}}
-            await saver.aput(config, checkpoint, metadata)
-            return thread_id
-        except Exception as e:
-            raise WorkflowException(f"Failed to save checkpoint: {str(e)}")
+        # TODO: Implement checkpoint saving
+        return thread_id
 
     async def load_checkpoint(
         self, thread_id: str, checkpoint_id: Optional[str] = None
@@ -80,16 +56,8 @@ class CheckpointManager:
         Returns:
             Tuple of (checkpoint, metadata)
         """
-        try:
-            saver = await self.get_saver()
-            config = {"configurable": {"thread_id": thread_id}}
-            checkpoint_tuple = await saver.aget_tuple(config)
-            if checkpoint_tuple:
-                checkpoint, metadata = checkpoint_tuple
-                return checkpoint, metadata
-            return {}, {}
-        except Exception as e:
-            raise WorkflowException(f"Failed to load checkpoint: {str(e)}")
+        # TODO: Implement checkpoint loading
+        return {}, {}
 
     async def list_checkpoints(
         self, thread_id: str
@@ -102,22 +70,8 @@ class CheckpointManager:
         Returns:
             List of checkpoint information
         """
-        try:
-            saver = await self.get_saver()
-            config = {"configurable": {"thread_id": thread_id}}
-            checkpoints = []
-            async for checkpoint_config in saver.alist(config):
-                checkpoint_info = {
-                    "thread_id": thread_id,
-                    "checkpoint_id": checkpoint_config.checkpoint.get("id"),
-                    "timestamp": checkpoint_config.metadata.get("time"),
-                    "step": checkpoint_config.metadata.get("step"),
-                    "source": checkpoint_config.metadata.get("source"),
-                }
-                checkpoints.append(checkpoint_info)
-            return checkpoints
-        except Exception as e:
-            raise WorkflowException(f"Failed to list checkpoints: {str(e)}")
+        # TODO: Implement checkpoint listing
+        return []
 
     async def delete_checkpoint(self, thread_id: str) -> None:
         """Delete all checkpoints for a workflow.
@@ -125,12 +79,8 @@ class CheckpointManager:
         Args:
             thread_id: Workflow/thread identifier
         """
-        try:
-            saver = await self.get_saver()
-            config = {"configurable": {"thread_id": thread_id}}
-            await saver.adelete(config)
-        except Exception as e:
-            raise WorkflowException(f"Failed to delete checkpoint: {str(e)}")
+        # TODO: Implement checkpoint deletion
+        pass
 
 
 # Global checkpoint manager instance

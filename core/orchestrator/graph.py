@@ -3,12 +3,11 @@
 import uuid
 from typing import Any, Callable, Optional
 
-from langchain.graphs import StateGraph
-from langchain_core.messages import BaseMessage
+from langgraph.graph import StateGraph
 
 from .state import WorkflowState
 from ..workflow_definitions.stages import WorkflowStage, StageOrder
-from ...exceptions import WorkflowException
+from ..exceptions import WorkflowException
 
 
 class WorkflowOrchestrator:

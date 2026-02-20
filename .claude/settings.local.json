@@ -13,7 +13,9 @@
       "Bash(git commit:*)",
       "Bash(python -m pytest:*)",
       "Bash(pip install:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(python:*)",
+      "Bash(grep:*)"
     ]
   }
 }

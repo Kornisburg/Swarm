@@ -3,8 +3,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional, List
 
-from ..orchestrator.state import WorkflowState
-from ..llm.providers import LLMProvider, get_llm_provider
+from core.orchestrator.state import WorkflowState
+from core.llm.providers import LLMProvider, get_llm_provider
 
 
 class BaseAgent(ABC):
@@ -100,7 +100,7 @@ class BaseAgent(ABC):
             List of similar decisions
         """
         try:
-            from ..memory.vectorstore.cognitive_memory import get_cognitive_memory
+            from memory.vectorstore.cognitive_memory import get_cognitive_memory
 
             cognitive_memory = get_cognitive_memory()
             similar_decisions = await cognitive_memory.search_similar_decisions(

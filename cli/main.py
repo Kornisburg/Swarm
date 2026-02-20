@@ -74,7 +74,8 @@ def version(ctx: click.Context) -> None:
     if ctx.obj.get("json_output"):
         data = {
             "version": "0.1.0",
-            "api_url": settings.api_url,
+            "api_host": settings.api_host,
+            "api_port": settings.api_port,
             "llm_provider": settings.llm_provider,
         }
         console.print_json(json.dumps(data))
@@ -84,9 +85,9 @@ def version(ctx: click.Context) -> None:
         table.add_column("Value", style="green")
 
         table.add_row("Version", "0.1.0")
-        table.add_row("API URL", settings.api_url)
+        table.add_row("API Host", settings.api_host)
+        table.add_row("API Port", str(settings.api_port))
         table.add_row("LLM Provider", settings.llm_provider)
-        table.add_row("Model", settings.llm_model)
 
         console.print(table)
 

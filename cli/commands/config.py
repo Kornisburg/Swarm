@@ -58,13 +58,19 @@ def show_current_settings() -> dict:
     settings = get_settings()
 
     return {
-        "api_url": settings.api_url,
+        "api_host": settings.api_host,
+        "api_port": settings.api_port,
         "llm_provider": settings.llm_provider,
-        "llm_model": settings.llm_model,
-        "llm_api_key": "***" if settings.llm_api_key else "Not set",
-        "redis_url": settings.redis_url,
-        "postgres_url": settings.postgres_url.replace(settings.postgres_url.split(":")[2] if len(settings.postgres_url.split(":")) > 2 else "", "***") if settings.postgres_url else "Not set",
-        "chroma_path": settings.chroma_path,
+        "openai_api_key": "***" if settings.openai_api_key else "Not set",
+        "anthropic_api_key": "***" if settings.anthropic_api_key else "Not set",
+        "postgres_host": settings.postgres_host,
+        "postgres_port": settings.postgres_port,
+        "postgres_db": settings.postgres_db,
+        "redis_host": settings.redis_host,
+        "redis_port": settings.redis_port,
+        "chroma_host": settings.chroma_host,
+        "chroma_port": settings.chroma_port,
+        "chroma_persist_dir": settings.chroma_persist_dir,
     }
 
 
@@ -134,17 +140,24 @@ def set_config_cmd(
 
     Examples:
         hive config set llm_provider anthropic
-        hive config set llm_api_key sk-ant-xxx
-        hive config set llm_model claude-3-opus-20240229
+        hive config set openai_api_key sk-xxx
+        hive config set anthropic_api_key sk-ant-xxx
+        hive config set api_host localhost
+        hive config set api_port 8000
 
     Available keys:
-        - api_url: Base URL for The Hive API
         - llm_provider: LLM provider (openai, anthropic)
-        - llm_model: Model name to use
-        - llm_api_key: API key for LLM provider
-        - redis_url: Redis connection URL
-        - postgres_url: PostgreSQL connection URL
-        - chroma_path: Path to ChromaDB storage
+        - openai_api_key: API key for OpenAI
+        - anthropic_api_key: API key for Anthropic
+        - api_host: API host address
+        - api_port: API port number
+        - postgres_host: PostgreSQL host
+        - postgres_port: PostgreSQL port
+        - redis_host: Redis host
+        - redis_port: Redis port
+        - chroma_host: ChromaDB host
+        - chroma_port: ChromaDB port
+        - chroma_persist_dir: ChromaDB storage path
     """
     try:
         # Determine which .env file to use
@@ -178,16 +191,18 @@ def set_config_cmd(
 
 
 @click.command(name="init")
-@click.option("--api-url", help="Base URL for The Hive API")
+@click.option("--api-host", help="API host address")
+@click.option("--api-port", type=int, help="API port number")
 @click.option("--llm-provider", type=click.Choice(["openai", "anthropic"]), help="LLM provider")
-@click.option("--llm-model", help="LLM model to use")
-@click.option("--llm-api-key", help="API key for LLM provider")
+@click.option("--openai-api-key", help="OpenAI API key")
+@click.option("--anthropic-api-key", help="Anthropic API key")
 @click.option("--env-file", type=click.Path(), help="Path to .env file")
 def init_config(
-    api_url: Optional[str],
+    api_host: Optional[str],
+    api_port: Optional[int],
     llm_provider: Optional[str],
-    llm_model: Optional[str],
-    llm_api_key: Optional[str],
+    openai_api_key: Optional[str],
+    anthropic_api_key: Optional[str],
     env_file: Optional[str],
 ) -> None:
     """Initialize configuration.
@@ -196,8 +211,8 @@ def init_config(
 
     Examples:
         hive config init
-        hive config init --api-url http://localhost:8000
-        hive config init --llm-provider anthropic --llm-api-key sk-ant-xxx
+        hive config init --api-host localhost --api-port 8000
+        hive config init --llm-provider anthropic --anthropic-api-key sk-ant-xxx
     """
     try:
         print_banner()
@@ -215,8 +230,11 @@ def init_config(
         console.print("\n[cyan]Setting up The Hive configuration...[/cyan]\n")
 
         # Prompt for values if not provided
-        if not api_url:
-            api_url = click.prompt("API URL", default="http://localhost:8000")
+        if not api_host:
+            api_host = click.prompt("API Host", default="0.0.0.0")
+
+        if not api_port:
+            api_port = click.prompt("API Port", default=8000, type=int)
 
         if not llm_provider:
             llm_provider = click.prompt(
@@ -225,18 +243,19 @@ def init_config(
                 default="anthropic",
             )
 
-        if not llm_model:
-            default_model = "claude-3-opus-20240229" if llm_provider == "anthropic" else "gpt-4-turbo-preview"
-            llm_model = click.prompt("LLM Model", default=default_model)
-
-        if not llm_api_key:
-            llm_api_key = click.prompt("LLM API Key", hide_input=True)
+        if llm_provider == "openai" and not openai_api_key:
+            openai_api_key = click.prompt("OpenAI API Key", hide_input=True)
+        elif llm_provider == "anthropic" and not anthropic_api_key:
+            anthropic_api_key = click.prompt("Anthropic API Key", hide_input=True)
 
         # Set values
-        set_key(env_path, "API_URL", api_url)
+        set_key(env_path, "API_HOST", api_host)
+        set_key(env_path, "API_PORT", str(api_port))
         set_key(env_path, "LLM_PROVIDER", llm_provider)
-        set_key(env_path, "LLM_MODEL", llm_model)
-        set_key(env_path, "LLM_API_KEY", llm_api_key)
+        if openai_api_key:
+            set_key(env_path, "OPENAI_API_KEY", openai_api_key)
+        if anthropic_api_key:
+            set_key(env_path, "ANTHROPIC_API_KEY", anthropic_api_key)
 
         console.print("\n[green]✓ Configuration saved successfully![/green]\n")
 

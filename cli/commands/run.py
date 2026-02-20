@@ -238,7 +238,10 @@ def run_cmd(
 
         # Get API URL
         settings = get_settings()
-        base_url = api_url or settings.api_url
+        if api_url:
+            base_url = api_url
+        else:
+            base_url = f"http://{settings.api_host}:{settings.api_port}"
 
         # Run workflow
         asyncio.run(

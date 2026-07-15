@@ -3,7 +3,7 @@
 from typing import Any
 
 from ..base import BaseAgent
-from ...orchestrator.state import WorkflowState
+from core.orchestrator.state import WorkflowState
 
 
 class SpecAgent(BaseAgent):

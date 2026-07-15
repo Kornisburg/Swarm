@@ -6,12 +6,12 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 
-from ...models.schemas import WorkflowSubmission, WorkflowSubmissionResponse
-from ....core.orchestrator.state import WorkflowState
-from ....core.orchestrator.graph import WorkflowOrchestrator
-from ....memory.postgres.client import get_postgres_client
-from ....memory.redis.client import get_redis_client
-from ....observability.exporters.prometheus import PrometheusExporter
+from infra.fastapi_gateway.models.schemas import WorkflowSubmission, WorkflowSubmissionResponse
+from core.orchestrator.state import WorkflowState
+from core.orchestrator.graph import WorkflowOrchestrator
+from memory.postgres.client import get_postgres_client
+from memory.redis.client import get_redis_client
+from observability.exporters.prometheus import PrometheusExporter
 
 router = APIRouter(tags=["Workflows"])
 
@@ -89,7 +89,7 @@ async def execute_workflow(workflow_id: str, input_request: str) -> None:
         # Persist to PostgreSQL
         postgres = get_postgres_client()
         with postgres.get_session() as session:
-            from ....memory.postgres.models import WorkflowSession
+            from memory.postgres.models import WorkflowSession
 
             workflow_session = WorkflowSession(
                 id=workflow_id,

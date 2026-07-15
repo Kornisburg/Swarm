@@ -2,11 +2,11 @@
 
 import docker
 from docker.errors import DockerException
-from typing import Optional, Dict, Any
+from typing import Any, Optional
 import uuid
 
-from ...core.exceptions import SandboxException
-from ...core.config import get_settings
+from core.exceptions import SandboxException
+from core.config import get_settings
 
 
 class DockerSandboxRunner:
@@ -27,7 +27,7 @@ class DockerSandboxRunner:
         timeout: int = 300,
         mem_limit: str = "512m",
         cpu_quota: int = 50000,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute code in isolated sandbox.
 
         Args:

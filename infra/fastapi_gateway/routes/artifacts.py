@@ -1,9 +1,11 @@
 """Artifact retrieval endpoints for The Hive API."""
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 
-from ...models.schemas import ArtifactSummary
-from ....memory.redis.client import get_redis_client
+from infra.fastapi_gateway.models.schemas import ArtifactSummary
+from memory.redis.client import get_redis_client
 
 router = APIRouter(tags=["Artifacts"])
 
@@ -62,9 +64,7 @@ async def get_artifact(workflow_id: str, artifact_type: str) -> dict[str, Any]:
     artifacts = status_data.get("artifacts", {})
 
     if artifact_type not in artifacts:
-        raise HTTPException(
-            status_code=404, detail=f"Artifact {artifact_type} not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Artifact {artifact_type} not found")
 
     return {
         "workflow_id": workflow_id,

@@ -31,12 +31,14 @@ app.include_router(artifacts.router)
 async def startup_event():
     """Initialize application on startup."""
     # Initialize database
-    from ...memory.postgres.client import get_postgres_client
+    from memory.postgres.client import get_postgres_client
+
     postgres = get_postgres_client()
     postgres.create_tables()
 
     # Initialize Redis connection
-    from ...memory.redis.client import get_redis_client
+    from memory.redis.client import get_redis_client
+
     redis = get_redis_client()
     if not redis.health_check():
         raise RuntimeError("Redis connection failed")

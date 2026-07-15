@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 
 from .docker_runner import DockerSandboxRunner
-from ...core.exceptions import SandboxException
+from core.exceptions import SandboxException
 
 
 class SandboxManager:

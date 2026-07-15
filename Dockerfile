@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY pyproject.toml .
+# Copy application metadata and source before editable install
+COPY . .
 RUN pip install --no-cache-dir -e .[dev]
 
 # Production stage
@@ -22,15 +22,14 @@ WORKDIR /app
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     docker.io \
+    curl \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python environment from builder
+# Copy Python environment and application from builder
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
-
-# Copy application code
-COPY . .
+COPY --from=builder /app /app
 
 # Create non-root user
 RUN useradd -m -u 1000 hiveuser && \

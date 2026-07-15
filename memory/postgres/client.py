@@ -84,6 +84,10 @@ class PostgresClient:
             return False
 
 
+# Backwards-compatible alias used by tests and older integrations.
+PostgreSQLClient = PostgresClient
+
+
 # Global client instance
 _client: Optional[PostgresClient] = None
 

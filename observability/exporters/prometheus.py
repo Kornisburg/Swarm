@@ -1,7 +1,7 @@
 """Prometheus metrics exporter for The Hive."""
 
 from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry
-from typing import Dict, Any
+from typing import Any, Optional
 
 
 class PrometheusExporter:
@@ -107,9 +107,7 @@ class PrometheusExporter:
         self.workflow_status.labels(status=status).inc()
         self.workflow_duration.labels(stage="total").observe(duration)
 
-    def record_agent_invocation(
-        self, agent_type: str, duration: float
-    ) -> None:
+    def record_agent_invocation(self, agent_type: str, duration: float) -> None:
         """Record agent invocation.
 
         Args:
@@ -119,7 +117,7 @@ class PrometheusExporter:
         self.agent_invocations.labels(agent_type=agent_type).inc()
         self.agent_duration.labels(agent_type=agent_type).observe(duration)
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get current metrics values.
 
         Returns:
@@ -129,6 +127,7 @@ class PrometheusExporter:
             "active_workflows": self.active_workflows._value.get(),
             "sandbox_containers": self.sandbox_containers._value.get(),
         }
+
 
 # Global Prometheus exporter instance
 _prometheus_exporter: Optional[PrometheusExporter] = None
@@ -144,4 +143,3 @@ def get_prometheus_exporter() -> PrometheusExporter:
     if _prometheus_exporter is None:
         _prometheus_exporter = PrometheusExporter()
     return _prometheus_exporter
-

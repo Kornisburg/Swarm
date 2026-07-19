@@ -3,12 +3,12 @@
 import json
 import logging
 import uuid
-from datetime import datetime
-from typing import Any, Optional
 from contextvars import ContextVar
+from datetime import datetime
+from typing import Any
 
 # Context variable for request ID
-request_id_ctx: ContextVar[Optional[str]] = ContextVar("request_id", default=None)
+request_id_ctx: ContextVar[str | None] = ContextVar("request_id", default=None)
 
 
 class JSONFormatter(logging.Formatter):

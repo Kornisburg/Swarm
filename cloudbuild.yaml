@@ -1,0 +1,62 @@
+steps:
+  - id: "build-image"
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        docker build \
+          -t $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/hive:$SHORT_SHA \
+          -t $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/hive:latest \
+          .
+
+  - id: "push-image"
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        docker push $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/hive:$SHORT_SHA
+        docker push $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/hive:latest
+
+  - id: "update-k8s-manifest"
+    name: "bash"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        sed -i \
+          "s|image: .*|image: $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/hive:$SHORT_SHA|" \
+          infra/kubernetes/hive-deployment.yaml
+
+  - id: "deploy-to-gke"
+    name: "gcr.io/cloud-builders/kubectl"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud container clusters get-credentials $_CLUSTER_NAME --region $_REGION
+        kubectl apply --validate=false -f infra/kubernetes/namespace.yaml
+        kubectl apply --validate=false -f infra/kubernetes/configmap.yaml
+        kubectl apply --validate=false -f infra/kubernetes/chroma-deployment.yaml
+        kubectl apply --validate=false -f infra/kubernetes/chroma-service.yaml
+        kubectl apply --validate=false -f infra/kubernetes/hive-deployment.yaml
+        kubectl apply --validate=false -f infra/kubernetes/hive-service.yaml
+        kubectl apply --validate=false -f infra/kubernetes/hive-ingress.yaml
+        kubectl apply --validate=false -f infra/kubernetes/hpa.yaml
+    env:
+      - "CLOUDSDK_COMPUTE_REGION=$_REGION"
+      - "CLOUDSDK_CONTAINER_CLUSTER=$_CLUSTER_NAME"
+
+substitutions:
+  _REGION: us-central1
+  _REPOSITORY: hive-dev-images
+  _CLUSTER_NAME: hive-dev-cluster
+
+options:
+  machineType: "E2_HIGHCPU_8"
+  logging: CLOUD_LOGGING_ONLY
+
+tags:
+  - hive
+  - gke-deploy

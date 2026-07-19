@@ -2,13 +2,16 @@
 
 from typing import Any
 
+from core.orchestrator.state import WorkflowState
+from observability.tracing.decision_decorator import track_decision
+
 from ..base import BaseAgent
-from ...orchestrator.state import WorkflowState
 
 
 class SpecAgent(BaseAgent):
     """Generate structured specifications from feature requests."""
 
+    @track_decision(decision_type="spec_generation", track_input=True, track_output=True)
     async def execute(self, state: WorkflowState) -> dict[str, Any]:
         """Generate specification document.
 

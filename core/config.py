@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     llm_provider: str = "openai"
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
+    gemini_api_key: Optional[str] = None
     model_temperature: float = 0.7
     max_tokens: int = 4096
 

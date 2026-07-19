@@ -1,6 +1,7 @@
 """Workflow stage definitions for The Hive."""
 
 from enum import Enum
+from typing import Optional
 
 
 class WorkflowStage(str, Enum):

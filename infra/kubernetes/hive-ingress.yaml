@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hive-ingress
+  namespace: hive
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "hive-ingress-ip"
+spec:
+  defaultBackend:
+    service:
+      name: hive-service
+      port:
+        number: 80

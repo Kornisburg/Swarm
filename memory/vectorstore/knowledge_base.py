@@ -3,8 +3,8 @@
 import json
 from typing import Any, Optional, List
 
-from .chroma_store import get_chroma_store
-from ..config import get_settings
+from .chroma_store import get_vector_store
+from core.config import get_settings
 
 
 class KnowledgeBase:
@@ -17,7 +17,7 @@ class KnowledgeBase:
             collection_name: Name of the vector collection
         """
         self.collection_name = collection_name
-        self.chroma = get_chroma_store()
+        self.chroma = get_vector_store()
 
     async def add_document(
         self,

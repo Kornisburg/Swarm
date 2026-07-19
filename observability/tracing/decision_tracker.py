@@ -1,8 +1,9 @@
 """Decision provenance tracking for The Hive."""
 
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
+
 from pydantic import BaseModel
 
 
@@ -17,10 +18,10 @@ class DecisionRecord(BaseModel):
     decision_type: str
     input_context: dict[str, Any]
     output_decision: dict[str, Any]
-    confidence: Optional[float] = None
-    rationale: Optional[str] = None
-    dependencies: Optional[list[str]] = None
-    workflow_id: Optional[str] = None
+    confidence: float | None = None
+    rationale: str | None = None
+    dependencies: list[str] | None = None
+    workflow_id: str | None = None
 
 
 class DecisionTracker:
@@ -36,10 +37,10 @@ class DecisionTracker:
         decision_type: str,
         input_context: dict[str, Any],
         output_decision: dict[str, Any],
-        confidence: Optional[float] = None,
-        rationale: Optional[str] = None,
-        dependencies: Optional[list[str]] = None,
-        workflow_id: Optional[str] = None,
+        confidence: float | None = None,
+        rationale: str | None = None,
+        dependencies: list[str] | None = None,
+        workflow_id: str | None = None,
     ) -> str:
         """Record an agent decision.
 
@@ -61,7 +62,7 @@ class DecisionTracker:
         record = DecisionRecord(
             decision_id=decision_id,
             agent_type=agent_type,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             decision_type=decision_type,
             input_context=input_context,
             output_decision=output_decision,
@@ -74,7 +75,7 @@ class DecisionTracker:
         self.decisions[decision_id] = record
         return decision_id
 
-    def get_decision(self, decision_id: str) -> Optional[DecisionRecord]:
+    def get_decision(self, decision_id: str) -> DecisionRecord | None:
         """Get a decision by ID.
 
         Args:
@@ -101,7 +102,7 @@ class DecisionTracker:
         ]
 
     def get_agent_decisions(
-        self, agent_type: str, workflow_id: Optional[str] = None
+        self, agent_type: str, workflow_id: str | None = None
     ) -> list[DecisionRecord]:
         """Get all decisions by an agent.
 

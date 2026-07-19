@@ -2,8 +2,9 @@
 
 from fastapi import APIRouter, HTTPException
 
-from ...models.schemas import WorkflowStatus
-from ....memory.redis.client import get_redis_client
+from memory.redis.client import get_redis_client
+
+from ..models.schemas import WorkflowStatus
 
 router = APIRouter(tags=["Status"])
 

@@ -13,18 +13,29 @@ class ChromaStore:
     def __init__(self, persist_directory: Optional[str] = None):
         """Initialize ChromaDB client.
 
+        Supports two modes:
+          - HTTP client (remote): used when CHROMA_HOST is set and not localhost
+          - Persistent client (local): fallback for local development
         Args:
-            persist_directory: Directory for persistence. If None, reads from env vars.
+            persist_directory: Directory for persistence (PersistentClient mode only).
         """
-        if persist_directory is None:
-            persist_directory = os.getenv("CHROMA_PERSIST_DIR", "./data/chroma")
+        chroma_host = os.getenv("CHROMA_HOST", "localhost")
 
-        self.client = chromadb.PersistentClient(
-            path=persist_directory,
-            settings=Settings(anonymized_telemetry=False),
-        )
+        if chroma_host != "localhost":
+            chroma_port = int(os.getenv("CHROMA_PORT", "8000"))
+            self.client = chromadb.HttpClient(
+                host=chroma_host,
+                port=chroma_port,
+                settings=Settings(anonymized_telemetry=False),
+            )
+        else:
+            if persist_directory is None:
+                persist_directory = os.getenv("CHROMA_PERSIST_DIR", "./data/chroma")
+            self.client = chromadb.PersistentClient(
+                path=persist_directory,
+                settings=Settings(anonymized_telemetry=False),
+            )
 
-        # Create collections for different memory channels
         self._init_collections()
 
     def _init_collections(self) -> None:

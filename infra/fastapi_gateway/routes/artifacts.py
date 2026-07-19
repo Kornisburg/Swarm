@@ -1,9 +1,10 @@
 """Artifact retrieval endpoints for The Hive API."""
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 
-from ...models.schemas import ArtifactSummary
-from ....memory.redis.client import get_redis_client
+from memory.redis.client import get_redis_client
 
 router = APIRouter(tags=["Artifacts"])
 

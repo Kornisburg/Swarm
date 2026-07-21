@@ -1,10 +1,9 @@
 """LangSmith trace exporter for The Hive."""
 
 import os
-from typing import Any, Optional
+from typing import Any
 
 from langsmith import Client
-from langchain_core.runnables import RunnableLambda
 
 
 class LangSmithExporter:
@@ -14,7 +13,7 @@ class LangSmithExporter:
         """Initialize LangSmith exporter."""
         self.api_key = os.getenv("LANGCHAIN_API_KEY")
         self.project_name = os.getenv("LANGCHAIN_PROJECT", "hive-mvp")
-        self.client: Optional[Client] = None
+        self.client: Client | None = None
 
         if self.api_key:
             self.client = Client(api_key=self.api_key)
@@ -52,12 +51,32 @@ class LangSmithExporter:
         # This is for custom tracing if needed
         pass
 
+    def track_decision(self, decision_data: dict[str, Any]) -> None:
+        """Track a decision via LangSmith.
+
+        Args:
+            decision_data: Decision data dictionary
+        """
+        if not self.is_enabled():
+            return
+
+        try:
+            self.client.create_run(
+                name=f"decision_{decision_data.get('decision_type', 'unknown')}",
+                run_type="chain",
+                inputs=decision_data.get("input", {}),
+                outputs=decision_data.get("output", {}),
+                extra={"agent_type": decision_data.get("agent_type", "UNKNOWN")},
+            )
+        except Exception:
+            pass
+
     def create_run(
         self,
         name: str,
         inputs: dict[str, Any],
         run_type: str = "chain",
-    ) -> Optional[str]:
+    ) -> str | None:
         """Create a new run in LangSmith.
 
         Args:

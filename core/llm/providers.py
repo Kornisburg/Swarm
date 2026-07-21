@@ -6,6 +6,7 @@ from typing import Any, Optional
 
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
+from langchain_google_genai import ChatGoogleGenerativeAI
 from ..config import get_settings
 from ..exceptions import AgentException
 
@@ -148,6 +149,33 @@ class AnthropicProvider(LLMProvider):
         return cost
 
 
+class VertexAIProvider(LLMProvider):
+    """Google Gemini LLM provider via google-genai."""
+
+    def __init__(self):
+        settings = get_settings()
+        api_key = settings.gemini_api_key or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise AgentException("Gemini API key not configured")
+        self.client = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            google_api_key=api_key,
+            temperature=settings.model_temperature,
+            max_tokens=settings.max_tokens,
+        )
+        self.model = "gemini-2.5-flash"
+
+    async def complete(self, prompt: str, **kwargs: Any) -> str:
+        response = await self.client.ainvoke(prompt, **kwargs)
+        return response.content
+
+    def estimate_cost(self, prompt: str, response: str) -> float:
+        prompt_tokens = len(prompt.split()) * 1.3
+        response_tokens = len(response.split()) * 1.3
+        cost = (prompt_tokens / 1000) * 0.000125 + (response_tokens / 1000) * 0.000375
+        return cost
+
+
 def get_llm_provider() -> LLMProvider:
     """Get LLM provider based on configuration.
 
@@ -163,5 +191,7 @@ def get_llm_provider() -> LLMProvider:
         return OpenAIProvider()
     elif settings.llm_provider.lower() == "anthropic":
         return AnthropicProvider()
+    elif settings.llm_provider.lower() == "vertexai":
+        return VertexAIProvider()
     else:
         raise AgentException(f"Unknown LLM provider: {settings.llm_provider}")

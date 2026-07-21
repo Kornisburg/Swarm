@@ -5,8 +5,8 @@ from docker.errors import DockerException
 from typing import Optional, Dict, Any
 import uuid
 
-from ...core.exceptions import SandboxException
-from ...core.config import get_settings
+from core.exceptions import SandboxException
+from core.config import get_settings
 
 
 class DockerSandboxRunner:

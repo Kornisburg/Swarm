@@ -1,7 +1,7 @@
 """Execution graph visualization and export."""
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 from ..exporters.prometheus import get_prometheus_exporter
 
@@ -185,7 +185,7 @@ class GraphExporter:
 
 
 # Global graph exporter instance
-_graph_exporter: Optional[GraphExporter] = None
+_graph_exporter: GraphExporter | None = None
 
 
 def get_graph_exporter() -> GraphExporter:

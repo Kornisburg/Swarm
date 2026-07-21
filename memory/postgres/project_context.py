@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 from .client import get_postgres_client
 from .models import ProjectContext
-from ..config import get_settings
+from core.config import get_settings
 
 
 class ProjectContextManager:

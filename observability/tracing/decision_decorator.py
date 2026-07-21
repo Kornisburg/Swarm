@@ -1,10 +1,11 @@
 """Decision tracking decorator for observability."""
 
+import asyncio
 import functools
-import inspect
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
-from ..exporters.langsmith import get_langsmith_exporter
+from .decision_tracker import DecisionTracker
 
 
 def track_decision(
@@ -31,26 +32,30 @@ def track_decision(
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             """Wrap async function for decision tracking."""
-            return await _track_decision(
-                func, args, kwargs, decision_type, confidence_threshold, track_input, track_output, True
+            result = await func(*args, **kwargs)
+            _track_decision_sync(
+                func, args, kwargs, decision_type, confidence_threshold, track_input, track_output, result
             )
+            return result
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
             """Wrap sync function for decision tracking."""
-            return _track_decision(
-                func, args, kwargs, decision_type, confidence_threshold, track_input, track_output, False
+            result = func(*args, **kwargs)
+            _track_decision_sync(
+                func, args, kwargs, decision_type, confidence_threshold, track_input, track_output, result
             )
+            return result
 
         # Return appropriate wrapper based on function type
-        if inspect.iscoroutinefunction(func):
+        if asyncio.iscoroutinefunction(func):
             return async_wrapper
         return sync_wrapper
 
     return decorator
 
 
-def _track_decision(
+def _track_decision_sync(
     func: Callable,
     args: tuple[Any, ...],
     kwargs: dict[str, Any],
@@ -58,61 +63,66 @@ def _track_decision(
     confidence_threshold: float,
     track_input: bool,
     track_output: bool,
-    is_async: bool,
-) -> Any:
-    """Track a decision and execute the function.
+    result: Any,
+) -> None:
+    """Record decision tracking metadata after function execution.
 
     Args:
-        func: Function to execute
+        func: Function that executed
         args: Function positional arguments
         kwargs: Function keyword arguments
         decision_type: Type of decision
         confidence_threshold: Minimum confidence
         track_input: Whether to track inputs
         track_output: Whether to track outputs
-        is_async: Whether function is async
-
-    Returns:
-        Function result
+        result: Function result
     """
-    # Extract agent type from function's class if available
+    tracker = _get_tracker()
+
     agent_type = "UNKNOWN"
+    workflow_id = None
+    input_context = {}
     if args and hasattr(args[0], "__class__"):
         agent_type = args[0].__class__.__name__.replace("Agent", "").upper()
 
-    # Track the decision
-    decision_data = {
-        "decision_type": decision_type,
-        "agent_type": agent_type,
-        "confidence": 1.0,  # Default confidence
-        "rationale": f"Execution of {func.__name__}",
-    }
-
     if track_input:
-        decision_data["input"] = {
-            "args": _serialize_args(args[1:], kwargs),  # Skip self
-            "function": func.__name__,
-        }
+        input_context = _serialize_args(args[1:], kwargs)
 
-    # Execute function
-    if is_async:
-        import asyncio
-        result = asyncio.run(func(*args, **kwargs))
-    else:
-        result = func(*args, **kwargs)
+    if args and len(args) > 1 and hasattr(args[1], "workflow_id"):
+        workflow_id = args[1].workflow_id
 
+    output_decision = {}
     if track_output:
-        decision_data["output"] = _serialize_output(result)
+        output_decision = _serialize_output(result)
 
-    # Export to LangSmith
     try:
-        exporter = get_langsmith_exporter()
-        exporter.track_decision(decision_data)
+        tracker.record_decision(
+            agent_type=agent_type,
+            decision_type=decision_type,
+            input_context=input_context,
+            output_decision=output_decision,
+            confidence=1.0,
+            rationale=f"Execution of {func.__name__}",
+            workflow_id=workflow_id,
+        )
     except Exception:
-        # Don't break the function if tracking fails
         pass
 
-    return result
+
+def _get_tracker() -> DecisionTracker:
+    """Get or create the global decision tracker."""
+    if not hasattr(_get_tracker, "_tracker"):
+        _get_tracker._tracker = DecisionTracker()
+    return _get_tracker._tracker
+
+
+def get_decision_tracker() -> DecisionTracker:
+    """Public accessor for the decision tracker singleton.
+
+    Returns:
+        Global DecisionTracker instance
+    """
+    return _get_tracker()
 
 
 def _serialize_args(args: tuple, kwargs: dict) -> dict[str, Any]:

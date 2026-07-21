@@ -1,10 +1,10 @@
 """Base agent interface for The Hive."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, List
+from typing import Any
 
-from core.orchestrator.state import WorkflowState
 from core.llm.providers import LLMProvider, get_llm_provider
+from core.orchestrator.state import WorkflowState
 
 
 class BaseAgent(ABC):
@@ -89,7 +89,7 @@ class BaseAgent(ABC):
 
     async def get_similar_decisions(
         self, query: str, limit: int = 3
-    ) -> List[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get similar decisions from cognitive memory.
 
         Args:
